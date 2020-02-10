@@ -16,7 +16,7 @@
     "CMS"
   ],
   "author": "Ofer Sarid",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ofersarid/reactor-connect/issues"
   },
