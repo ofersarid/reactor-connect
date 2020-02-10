@@ -21,54 +21,38 @@ if (!firebase.apps.length) {
     databaseURL: 'https://reactor-dam.firebaseio.com',
     projectId: 'reactor-dam',
     storageBucket: 'reactor-dam.appspot.com',
-    messagingSenderId: '198256799515',
+    messagingSenderId: '198256799515'
   });
 }
 
-const getData = (userId) => {
+const getData = async (userId) => {
   const db = firebase.firestore();
-  return new Promise((resolve, reject) => {
-    db.collection('users').doc(userId).get().then((doc) => {
-      const data = doc.data();
-      const promises = [];
-      data.collections.forEach(collectionId => {
-        promises.push(db.collection('collections').doc(collectionId).get());
-        promises.push(db.collection('collections').doc(collectionId).collection('data').get());
-      });
-      data.pages.forEach(pageId => {
-        promises.push(db.collection('pages').doc(pageId).get());
-      });
-      Promise.all(promises).then(data => {
-        let name;
-        let subCollectionOrder;
-        data.forEach(d => {
-          if (d.data) { // if true than this is a document
-            const docData = d.data();
-            name = docData.name;
-            if (!docData.layout) {
-              // this is a page
-              structuredData.pages[camelCase(name)] = docData.data;
-            } else {
-              // this is collection
-              subCollectionOrder = docData.order.length > 0 ? docData.order.split(' | ') : [];
-              structuredData.collections[camelCase(name)] = [];
-            }
-          } else {
-            // this is a sub collection
-            const items = [];
-            subCollectionOrder.forEach(id => {
-              const doc = d.docs.find(doc => doc.id === id).data();
-              // preloadImages(doc);
-              items.push(Object.assign({ id }, doc));
-            });
-
-            structuredData.collections[camelCase(name)] = items;
-          }
+  const user = await db.collection('users').doc(userId).get();
+  const userData = await user.data();
+  if (userData.collections) {
+    for (const id of userData.collections) {
+      const item = await db.collection('collections').doc(id).get();
+      const data = await item.data();
+      const order = data.order.split(' | ');
+      structuredData.collections[camelCase(data.name)] = [];
+      const assets = await db.collection('collections').doc(id).collection('data').get();
+      order.forEach(id => {
+        const asset = assets.docs.find(itm => itm.id === id);
+        structuredData.collections[camelCase(data.name)].push({
+          id: asset.id,
+          ...asset.data()
         });
-        resolve(structuredData);
       });
-    });
-  });
+    }
+  }
+  if (userData.pages) {
+    for (const id of userData.pages) {
+      const item = await db.collection('pages').doc(id).get();
+      const data = await item.data();
+      structuredData.pages[camelCase(data.name)] = data.data;
+    }
+  }
+  return structuredData;
 };
 
 const camelize = str => {
@@ -109,8 +93,8 @@ const preloadPics = data => {
   Object.keys(data.collections).forEach(key => {
     data.collections[key].forEach(itm => {
       Object.keys(itm).forEach(itmKey => {
-        const isImg = itmKey.toLowerCase().match(/\b(\w*pic--\w*)\b/) &&
-          itm[itmKey].match && itm[itmKey].toLowerCase().match(/^https?:\/\//);
+        const isImg = itmKey.toLowerCase().match(/^pic--/) &&
+          itm[itmKey].toLowerCase().match(/^https?:\/\//);
         if (isImg && !images.includes(itm[itmKey])) {
           images.push(itm[itmKey]);
         }
