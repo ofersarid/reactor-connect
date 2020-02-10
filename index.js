@@ -5,6 +5,7 @@ require('firebase/database');
 const Promise = require('promise');
 const firebase = require('firebase/app');
 const camelCase = require('lodash/camelCase');
+const extend = require('lodash/extend');
 const immutable = require('immutable');
 
 const structuredData = {
@@ -38,7 +39,7 @@ const getData = async (userId) => {
       const assets = await db.collection('collections').doc(id).collection('data').get();
       order.forEach(id => {
         const asset = assets.docs.find(itm => itm.id === id);
-        structuredData.collections[camelCase(data.name)].push(Object.assign({}, asset.data(), { id: asset.id }));
+        structuredData.collections[camelCase(data.name)].push(extend(asset.data(), { id: asset.id }));
       });
     }
   }
