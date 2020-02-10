@@ -39,7 +39,9 @@ const getData = async (userId) => {
       const assets = await db.collection('collections').doc(id).collection('data').get();
       order.forEach(id => {
         const asset = assets.docs.find(itm => itm.id === id);
-        structuredData.collections[camelCase(data.name)].push(extend(asset.data(), { id: asset.id }));
+        // structuredData.collections[camelCase(data.name)].push(extend(asset.data(), { id: asset.id }));
+        const assetData = asset.data();
+        structuredData.collections[camelCase(data.name)].push(extend(assetData, { id: asset.id }));
       });
     }
   }

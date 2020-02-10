@@ -1,6 +1,6 @@
 {
   "name": "reactor-connect",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Connect your React application to the Reactor CMS",
   "main": "index.js",
   "scripts": {
