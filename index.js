@@ -39,9 +39,9 @@ const getData = async (userId) => {
       const assets = await db.collection('collections').doc(id).collection('data').get();
       order.forEach(id => {
         const asset = assets.docs.find(itm => itm.id === id);
-        // structuredData.collections[camelCase(data.name)].push(extend(asset.data(), { id: asset.id }));
         const assetData = asset.data();
-        structuredData.collections[camelCase(data.name)].push(extend(assetData, { id: asset.id }));
+        assetData.id = asset.id;
+        structuredData.collections[camelCase(data.name)].push(assetData);
       });
     }
   }
@@ -53,12 +53,6 @@ const getData = async (userId) => {
     }
   }
   return structuredData;
-};
-
-const camelize = str => {
-  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
-    return index === 0 ? word.toLowerCase() : word.toUpperCase();
-  }).replace(/\s+/g, '');
 };
 
 const reducer = (state = immutable.fromJS({
@@ -84,8 +78,10 @@ const actions = {
 };
 
 const selectors = {
-  collection: (state, name) => state.getIn(['reactor', 'collections', name]),
-  page: (state, name) => state.getIn(['reactor', 'pages', camelize(name)]),
+  collection: (state, name) => {
+    return state.getIn(['reactor', 'collections', camelCase(name)]);
+  },
+  page: (state, name) => state.getIn(['reactor', 'pages', camelCase(name)]),
 };
 
 const preloadPics = data => {
