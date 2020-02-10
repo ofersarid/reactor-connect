@@ -132,7 +132,7 @@ const preloadPics = data => {
   });
 };
 
-export default {
+module.exports = {
   getData,
   actions,
   reducer,
