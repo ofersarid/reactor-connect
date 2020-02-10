@@ -1,11 +1,11 @@
-import 'firebase/firestore';
-import 'firebase/auth';
-import 'firebase/storage';
-import 'firebase/database';
-import Promise from 'promise';
-import firebase from 'firebase/app';
-import camelCase from 'lodash/camelCase';
-import { fromJS } from 'immutable';
+require('firebase/firestore');
+require('firebase/auth');
+require('firebase/storage');
+require('firebase/database');
+const Promise = require('promise');
+const firebase = require('firebase/app');
+const camelCase = require('lodash/camelCase');
+const immutable = require('immutable');
 
 const structuredData = {
   collections: {},
@@ -77,13 +77,13 @@ const camelize = str => {
   }).replace(/\s+/g, '');
 };
 
-const reducer = (state = fromJS({
+const reducer = (state = immutable.fromJS({
   collections: {},
   pages: {},
 }), action) => {
   switch (action.type) {
     case STORE_DATA:
-      return fromJS(action.payload);
+      return immutable.fromJS(action.payload);
     default:
       return state;
   }
