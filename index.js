@@ -58,10 +58,11 @@ const getData = async (userId) => {
 const reducer = (state = immutable.fromJS({
   collections: {},
   pages: {},
+  ready: false,
 }), action) => {
   switch (action.type) {
     case STORE_DATA:
-      return immutable.fromJS(action.payload);
+      return immutable.fromJS(Object.assign({}, action.payload, { ready: true }));
     default:
       return state;
   }
