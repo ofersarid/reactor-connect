@@ -80,9 +80,9 @@ const actions = {
 
 const selectors = {
   collection: (state, name) => {
-    return state.getIn(['reactor', 'collections', camelCase(name)]);
+    return state.getIn(['reactor', 'collections', camelCase(name)]).toJS();
   },
-  page: (state, name) => state.getIn(['reactor', 'pages', camelCase(name)]),
+  page: (state, name) => state.getIn(['reactor', 'pages', camelCase(name)]).toJS(),
 };
 
 const preloadPics = data => {
