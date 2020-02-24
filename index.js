@@ -7,8 +7,9 @@ const camelCase = require('lodash/camelCase');
 const immutable = require('immutable');
 const RF = require('redux-firestore');
 const RRF = require('react-redux-firebase');
+const Redux = require('redux');
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers = window ? (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || Redux.compose) : Redux.compose;
 
 const structuredData = {
   collections: {},
