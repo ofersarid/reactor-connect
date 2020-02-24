@@ -2,11 +2,13 @@ require('firebase/firestore');
 require('firebase/auth');
 require('firebase/storage');
 require('firebase/database');
-const Promise = require('promise');
 const firebase = require('firebase/app');
 const camelCase = require('lodash/camelCase');
-const extend = require('lodash/extend');
 const immutable = require('immutable');
+const RF = require('redux-firestore');
+const RRF = require('react-redux-firebase');
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const structuredData = {
   collections: {},
@@ -113,10 +115,47 @@ const preloadPics = data => {
   });
 };
 
+const middleware = composeEnhancers(RF.reduxFirestore(firebase));
+
+const connect = RRF.firestoreConnect(props => {
+  let aggregated = [{
+    collection: 'users',
+    doc: _userId,
+  }];
+  if (props.resourceList) {
+    aggregated = aggregated.concat(props.resourceList.collections.reduce((list, id) => {
+      list.push({
+        collection: 'collections',
+        doc: id,
+      });
+      list.push({
+        collection: 'collections',
+        doc: id,
+        subcollections: [{
+          collection: 'data',
+        }],
+      });
+      return list;
+    }, []));
+
+    aggregated = aggregated.concat(props.resourceList.pages.reduce((accumulator, id) => {
+      accumulator.push({
+        collection: 'pages',
+        doc: id,
+      });
+      return accumulator;
+    }, []));
+  }
+  return aggregated;
+});
+
 module.exports = {
   getData,
   actions,
   reducer,
+  realTimeReducer: RF.firestoreReducer,
   selectors,
   preloadPics,
+  middleware,
+  connect,
 };
